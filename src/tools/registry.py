@@ -5,7 +5,6 @@ TOOLS: Dict[str, Callable] = {}
 TOOL_DECLARATIONS: Dict[str, Any] = {}
 
 TOOL_PERMISSIONS: Dict[str, str] = {
-	"get_weather": "read",
 	"get_audit_log": "audit",
 	"ban_user": "moderation",
 	"delete_channel": "server_management",

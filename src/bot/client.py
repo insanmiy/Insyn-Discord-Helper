@@ -10,6 +10,7 @@ class InsynBot(commands.Bot):
 		intents.guilds = True
 		intents.members = True
 		intents.moderation = True
+		intents.reactions = True
 
 		super().__init__(
 			command_prefix="!",

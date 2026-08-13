@@ -1,7 +1,6 @@
 import discord
 from typing import Dict, Any
 from src.tools.registry import register_tool
-from src.services.weather import get_weather
 from google import genai
 
 
@@ -236,10 +235,6 @@ async def get_current_user(context: Dict[str, Any]) -> Dict[str, Any]:
 		}
 
 
-async def get_weather_tool(context: Dict[str, Any], location: str) -> Dict[str, Any]:
-	return await get_weather(location)
-
-
 def register_information_tools():
 	register_tool(
 		"get_server_info",
@@ -336,26 +331,6 @@ def register_information_tools():
 				type="object",
 				properties={},
 				required=[]
-			)
-		),
-		"read"
-	)
-
-	register_tool(
-		"get_weather",
-		get_weather_tool,
-		genai.types.FunctionDeclaration(
-			name="get_weather",
-			description="Get current weather information for a location.",
-			parameters=genai.types.Schema(
-				type="object",
-				properties={
-					"location": genai.types.Schema(
-						type="string",
-						description="City name or location to get weather for."
-					)
-				},
-				required=["location"]
 			)
 		),
 		"read"

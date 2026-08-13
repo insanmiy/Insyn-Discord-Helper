@@ -10,7 +10,8 @@ from src.permissions.storage import (
 	get_server_config
 )
 from src.ai.runner import run_ai_request
-from src.data.memory import add_memory, get_memories
+from src.bot.status import get_bot_activity
+from src.reaction_roles.handlers import handle_reaction_add, handle_reaction_remove
 
 
 async def handle_owner_command(message, bot):
@@ -107,7 +108,16 @@ async def send_long_message(channel, content):
 async def setup_events(bot):
 	@bot.event
 	async def on_ready():
+		await bot.change_presence(activity=get_bot_activity())
 		print(f"Logged in as {bot.user.name} (ID: {bot.user.id})")
+
+	@bot.event
+	async def on_raw_reaction_add(payload):
+		await handle_reaction_add(bot, payload)
+
+	@bot.event
+	async def on_raw_reaction_remove(payload):
+		await handle_reaction_remove(bot, payload)
 
 	@bot.event
 	async def on_message(message):
@@ -139,38 +149,7 @@ async def setup_events(bot):
 		if not cleaned_message:
 			return
 
-		lower = cleaned_message.lower()
-		prefixes = ["add this to ur memory:", "add this to your memory:", "add this to memory:", "add to memory:", "remember:", "remember this:"]
-		for p in prefixes:
-			if lower.startswith(p):
-				parts = cleaned_message.split(":", 1)
-				if len(parts) < 2 or not parts[1].strip():
-					await message.reply("Please include the text to add after the command, e.g. 'add this to your memory: remember to...'")
-					return
-				content_to_add = parts[1].strip()
-				add_memory(guild_id, content_to_add, added_by=user_id)
-				await message.reply("Added to memory.")
-				return
-
 		context = build_discord_context(message, bot)
-		try:
-			history = []
-			async for m in message.channel.history(limit=10):
-				if m.author and m.author.bot:
-					continue
-				history.append({
-					"author": m.author.display_name if m.author else "unknown",
-					"content": m.content,
-					"timestamp": getattr(m, 'created_at', None)
-				})
-			context["history"] = list(reversed(history))
-		except Exception:
-			context["history"] = []
-
-		try:
-			context["memory"] = get_memories(guild_id)
-		except Exception:
-			context["memory"] = []
 
 		try:
 			response = await run_ai_request(context, cleaned_message)

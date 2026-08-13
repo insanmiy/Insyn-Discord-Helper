@@ -16,6 +16,7 @@ from src.tools.permissions import register_permission_tools
 from src.tools.messages import register_message_tools
 from src.tools.voice import register_voice_tools
 from src.tools.code_editor import register_code_editor_tools
+from src.tools.reaction_roles import register_reaction_role_tools
 from src.services.logging import setup_logging
 
 
@@ -30,6 +31,7 @@ async def main():
 	register_message_tools()
 	register_voice_tools()
 	register_code_editor_tools()
+	register_reaction_role_tools()
 	bot = create_bot()
 	await setup_events(bot)
 
