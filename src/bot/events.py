@@ -139,7 +139,6 @@ async def setup_events(bot):
 		if not cleaned_message:
 			return
 
-		# Memory add commands: only explicit prefix-based commands (no auto-add on reply)
 		lower = cleaned_message.lower()
 		prefixes = ["add this to ur memory:", "add this to your memory:", "add this to memory:", "add to memory:", "remember:", "remember this:"]
 		for p in prefixes:
@@ -154,11 +153,9 @@ async def setup_events(bot):
 				return
 
 		context = build_discord_context(message, bot)
-		# include recent message history (transient) for context, but do NOT persist
 		try:
 			history = []
 			async for m in message.channel.history(limit=10):
-				# skip bots to keep history human-focused
 				if m.author and m.author.bot:
 					continue
 				history.append({
@@ -166,12 +163,10 @@ async def setup_events(bot):
 					"content": m.content,
 					"timestamp": getattr(m, 'created_at', None)
 				})
-			# order oldest->newest
 			context["history"] = list(reversed(history))
 		except Exception:
 			context["history"] = []
 
-		# include stored memory for this guild in the AI context (only when explicitly added previously)
 		try:
 			context["memory"] = get_memories(guild_id)
 		except Exception:

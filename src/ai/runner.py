@@ -29,7 +29,6 @@ User request: {user_message}"""
 
 	while round < settings.MAX_TOOL_ROUNDS:
 		try:
-			# Try the primary model and then fallbacks if any model fails
 			models_to_try = [settings.GEMINI_MODEL] + getattr(settings, "GEMINI_FALLBACK_MODELS", [])
 			response = None
 			last_exc = None
@@ -43,12 +42,10 @@ User request: {user_message}"""
 							tools=[types.Tool(function_declarations=tool_declarations)] if tool_declarations else None
 						)
 					)
-					# successful call, stop trying other models
 					break
 				except Exception as e:
 					logger.warning(f"Model {model} failed: {e}")
 					last_exc = e
-			# If no model returned a response, raise the last exception to be handled below
 			if response is None:
 				if last_exc:
 					raise last_exc
@@ -191,7 +188,6 @@ def format_context(context: Dict[str, Any]) -> str:
 	if context.get('referenced_roles'):
 		lines.append(f"Mentioned roles: {', '.join([r['name'] for r in context['referenced_roles']])}")
 
-	# Include recent transient history if available (last messages in channel)
 	if context.get('history'):
 		hist = context.get('history')
 		if isinstance(hist, list) and hist:
@@ -201,12 +197,11 @@ def format_context(context: Dict[str, Any]) -> str:
 				content = h.get('content', '') if isinstance(h, dict) else str(h)
 				lines.append(f"- {author}: {content}")
 
-	# Include short memory summary if available (persisted memories)
 	if context.get('memory'):
 		mem_items = context.get('memory')
 		if isinstance(mem_items, list) and mem_items:
 			lines.append("Memory:")
-			for m in mem_items[-5:]:  # include last 5 memory items
+			for m in mem_items[-20:]:
 				text = m.get('text') if isinstance(m, dict) else str(m)
 				lines.append(f"- {text}")
 

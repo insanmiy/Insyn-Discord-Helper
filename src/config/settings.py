@@ -118,7 +118,6 @@ class Settings:
 
 	GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
 
-	# Comma-separated fallback models. Defaults chosen to try common Gemini variants.
 	GEMINI_FALLBACK_MODELS = [m.strip() for m in os.getenv("GEMINI_FALLBACK_MODELS", "gemini-3.5-flash,gemini-3.1-flash-lite,gemini-3.6-flash").split(",") if m.strip()]
 
 	ai_settings = bot_config.get("ai_settings", {})
