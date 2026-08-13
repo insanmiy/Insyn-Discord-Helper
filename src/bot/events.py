@@ -10,6 +10,7 @@ from src.permissions.storage import (
 	get_server_config
 )
 from src.ai.runner import run_ai_request
+from src.data.memory import add_memory, get_memories
 
 
 async def handle_owner_command(message, bot):
@@ -138,7 +139,43 @@ async def setup_events(bot):
 		if not cleaned_message:
 			return
 
+		# Memory add commands: only explicit prefix-based commands (no auto-add on reply)
+		lower = cleaned_message.lower()
+		prefixes = ["add this to ur memory:", "add this to your memory:", "add this to memory:", "add to memory:", "remember:", "remember this:"]
+		for p in prefixes:
+			if lower.startswith(p):
+				parts = cleaned_message.split(":", 1)
+				if len(parts) < 2 or not parts[1].strip():
+					await message.reply("Please include the text to add after the command, e.g. 'add this to your memory: remember to...'")
+					return
+				content_to_add = parts[1].strip()
+				add_memory(guild_id, content_to_add, added_by=user_id)
+				await message.reply("Added to memory.")
+				return
+
 		context = build_discord_context(message, bot)
+		# include recent message history (transient) for context, but do NOT persist
+		try:
+			history = []
+			async for m in message.channel.history(limit=10):
+				# skip bots to keep history human-focused
+				if m.author and m.author.bot:
+					continue
+				history.append({
+					"author": m.author.display_name if m.author else "unknown",
+					"content": m.content,
+					"timestamp": getattr(m, 'created_at', None)
+				})
+			# order oldest->newest
+			context["history"] = list(reversed(history))
+		except Exception:
+			context["history"] = []
+
+		# include stored memory for this guild in the AI context (only when explicitly added previously)
+		try:
+			context["memory"] = get_memories(guild_id)
+		except Exception:
+			context["memory"] = []
 
 		try:
 			response = await run_ai_request(context, cleaned_message)

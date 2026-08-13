@@ -191,6 +191,25 @@ def format_context(context: Dict[str, Any]) -> str:
 	if context.get('referenced_roles'):
 		lines.append(f"Mentioned roles: {', '.join([r['name'] for r in context['referenced_roles']])}")
 
+	# Include recent transient history if available (last messages in channel)
+	if context.get('history'):
+		hist = context.get('history')
+		if isinstance(hist, list) and hist:
+			lines.append("Recent messages:")
+			for h in hist[-10:]:
+				author = h.get('author', 'unknown') if isinstance(h, dict) else 'unknown'
+				content = h.get('content', '') if isinstance(h, dict) else str(h)
+				lines.append(f"- {author}: {content}")
+
+	# Include short memory summary if available (persisted memories)
+	if context.get('memory'):
+		mem_items = context.get('memory')
+		if isinstance(mem_items, list) and mem_items:
+			lines.append("Memory:")
+			for m in mem_items[-5:]:  # include last 5 memory items
+				text = m.get('text') if isinstance(m, dict) else str(m)
+				lines.append(f"- {text}")
+
 	return "\n".join(lines)
 
 
