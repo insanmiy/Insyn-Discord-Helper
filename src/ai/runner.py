@@ -29,14 +29,31 @@ User request: {user_message}"""
 
 	while round < settings.MAX_TOOL_ROUNDS:
 		try:
-			response = client.models.generate_content(
-				model=settings.GEMINI_MODEL,
-				contents=full_message,
-				config=types.GenerateContentConfig(
-					system_instruction=SYSTEM_INSTRUCTION,
-					tools=[types.Tool(function_declarations=tool_declarations)] if tool_declarations else None
-				)
-			)
+			# Try the primary model and then fallbacks if any model fails
+			models_to_try = [settings.GEMINI_MODEL] + getattr(settings, "GEMINI_FALLBACK_MODELS", [])
+			response = None
+			last_exc = None
+			for model in models_to_try:
+				try:
+					response = client.models.generate_content(
+						model=model,
+						contents=full_message,
+						config=types.GenerateContentConfig(
+							system_instruction=SYSTEM_INSTRUCTION,
+							tools=[types.Tool(function_declarations=tool_declarations)] if tool_declarations else None
+						)
+					)
+					# successful call, stop trying other models
+					break
+				except Exception as e:
+					logger.warning(f"Model {model} failed: {e}")
+					last_exc = e
+			# If no model returned a response, raise the last exception to be handled below
+			if response is None:
+				if last_exc:
+					raise last_exc
+				else:
+					return "I apologize, but I couldn't generate a response."
 
 			if not response.candidates or not response.candidates[0].content:
 				return "I apologize, but I couldn't generate a response."
