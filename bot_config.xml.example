@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+	<!-- Basic Settings -->
+	<bot_name>Insyn Helper</bot_name> <!-- The name displayed for your bot -->
+	<bot_description>AI powered Discord server assistant</bot_description> <!-- Short description of what the bot does -->
+
+	<!-- Bot Status -->
+	<bot_status>
+		<type>watching</type> <!-- What the bot appears to be doing (watching, playing, listening) -->
+		<message>for mentions</message> <!-- The text shown after the activity type -->
+	</bot_status>
+
+	<!-- AI Settings -->
+	<ai_settings>
+		<temperature>0.7</temperature> <!-- How creative the AI is (0.0 = strict, 1.0 = creative) -->
+		<max_output_tokens>2048</max_output_tokens> <!-- Maximum length of AI responses -->
+		<max_tool_rounds>5</max_tool_rounds> <!-- How many times the AI can call tools in one request -->
+		<tool_timeout_seconds>30</tool_timeout_seconds> <!-- How long to wait for a tool to finish before giving up -->
+	</ai_settings>
+
+	<!-- Response Settings -->
+	<response_settings>
+		<use_embeds>true</use_embeds> <!-- Whether to use fancy Discord embeds for responses -->
+		<embed_color>#5865F2</embed_color> <!-- Color of the embed (hex code) -->
+		<show_tool_execution>false</show_tool_execution> <!-- Show which tools the AI is using -->
+		<split_long_messages>true</split_long_messages> <!-- Break up messages longer than 2000 characters -->
+	</response_settings>
+
+	<!-- Logging -->
+	<logging>
+		<enabled>false</enabled> <!-- Turn logging on or off -->
+		<log_file>logs/bot.log</log_file> <!-- Where to save the log file -->
+		<log_level>WARNING</log_level> <!-- How detailed logs are (DEBUG, INFO, WARNING, ERROR) -->
+		<log_tool_requests>true</log_tool_requests> <!-- Log when tools are called -->
+		<log_tool_results>true</log_tool_results> <!-- Log what tools return -->
+	</logging>
+
+	<!-- Permissions -->
+	<permissions>
+		<default_allow_all_channels>true</default_allow_all_channels> <!-- If true, bot works in all channels by default -->
+		<require_owner_for_config>true</require_owner_for_config> <!-- Only server owner can change bot settings -->
+	</permissions>
+</config>

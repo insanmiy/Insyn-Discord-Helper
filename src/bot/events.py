@@ -129,7 +129,7 @@ async def setup_events(bot):
 			if await handle_owner_command(message, bot):
 				return
 
-		if not is_allowed_user(guild_id, user_id, role_ids, channel_id):
+		if not is_allowed_user(guild_id, user_id, role_ids, channel_id) and not is_server_owner(user_id, str(message.guild.owner_id)):
 			await message.reply("You are not authorized to use Insyn Helper.")
 			return
 
