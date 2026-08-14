@@ -1,7 +1,11 @@
 import discord
+import time
 from typing import Dict, Any, Optional
 from src.tools.registry import register_tool
 from google import genai
+
+_last_role_deletion_time: Dict[int, float] = {}
+_ROLE_DELETION_COOLDOWN = 1.3
 
 
 async def create_role(context: Dict[str, Any], name: str, color: Optional[str] = None, hoist: bool = False, mentionable: bool = False) -> Dict[str, Any]:
@@ -45,12 +49,27 @@ async def create_role(context: Dict[str, Any], name: str, color: Optional[str] =
 
 
 async def delete_role(context: Dict[str, Any], role_id: str) -> Dict[str, Any]:
+	global _last_role_deletion_time
+	
 	guild = context.get("_guild")
 
 	if not guild:
 		return {
 			"success": False,
 			"error": "This command can only be used in a server."
+		}
+
+	# Check rate limit for this guild
+	guild_id = guild.id
+	current_time = time.time()
+	last_deletion = _last_role_deletion_time.get(guild_id, 0)
+	time_since_last_deletion = current_time - last_deletion
+	
+	if time_since_last_deletion < _ROLE_DELETION_COOLDOWN:
+		wait_time = _ROLE_DELETION_COOLDOWN - time_since_last_deletion
+		return {
+			"success": False,
+			"error": f"Rate limited. Please wait {wait_time:.2f} seconds before deleting another role."
 		}
 
 	try:
@@ -63,6 +82,9 @@ async def delete_role(context: Dict[str, Any], role_id: str) -> Dict[str, Any]:
 			}
 
 		await role.delete(reason="Deleted by Insyn Helper")
+		
+		# Update last deletion time for this guild
+		_last_role_deletion_time[guild_id] = time.time()
 
 		return {
 			"success": True,
