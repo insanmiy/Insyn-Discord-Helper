@@ -40,4 +40,9 @@
 		<default_allow_all_channels>true</default_allow_all_channels> <!-- If true, bot works in all channels by default -->
 		<require_owner_for_config>true</require_owner_for_config> <!-- Only server owner can change bot settings -->
 	</permissions>
+
+	<!-- Storage -->
+	<storage>
+		<database_path>data/bot.sqlite3</database_path>
+	</storage>
 </config>

@@ -66,7 +66,10 @@ def load_bot_config():
 			"permissions": {
 				"default_allow_all_channels": get_bool(permissions_settings, "default_allow_all_channels", True) if permissions_settings else True,
 				"require_owner_for_config": get_bool(permissions_settings, "require_owner_for_config", True) if permissions_settings else True
-			} if permissions_settings else {"default_allow_all_channels": True, "require_owner_for_config": True}
+			} if permissions_settings else {"default_allow_all_channels": True, "require_owner_for_config": True},
+			"storage": {
+				"database_path": get_text(root.find("storage"), "database_path", "data/bot.sqlite3") if root.find("storage") is not None else "data/bot.sqlite3"
+			}
 		}
 
 	return {
@@ -98,6 +101,9 @@ def load_bot_config():
 		"permissions": {
 			"default_allow_all_channels": True,
 			"require_owner_for_config": True
+		},
+		"storage": {
+			"database_path": "data/bot.sqlite3"
 		}
 	}
 
@@ -142,6 +148,13 @@ class Settings:
 	permissions = bot_config.get("permissions", {})
 	DEFAULT_ALLOW_ALL_CHANNELS = permissions.get("default_allow_all_channels", True)
 	REQUIRE_OWNER_FOR_CONFIG = permissions.get("require_owner_for_config", True)
+
+	storage = bot_config.get("storage", {})
+	DATABASE_PATH = storage.get("database_path", "data/bot.sqlite3")
+
+	# All Discord action reasons use this value, so changing the configured name
+	# also changes the audit-log attribution.
+	ACTION_REASON = f"Action performed by {BOT_NAME}"
 
 
 settings = Settings()
